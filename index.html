@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bloom Lantern — Firefly Garden</title>
+  <meta name="description" content="A calm interactive lantern garden, full of hand-shaped tulips and slow fireflies.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <main class="scene">
+    <div class="grain"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#">BLOOM<span>•</span>LANTERN</a>
+      <div class="hint"><span class="mouse-icon">↔</span><span class="desktop-hint">DRAG TO EXPLORE</span><span class="touch-hint">SWIPE TO EXPLORE</span></div>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow"><span></span>A LITTLE LIGHT IN THE DARK</p>
+      <h1>Flowers that<br><em>keep the night warm.</em></h1>
+      <p class="description">
+        A tiny glass garden where tulips glow softly and fireflies drift
+        through the evening air.
+      </p>
+    </section>
+
+    <div id="canvas-wrap" aria-label="Interactive 3D tulip lantern"></div>
+
+    <div class="bottom-info">
+      <div>
+        <span class="label">OBJECT</span>
+        <strong>Tulip Lantern</strong>
+      </div>
+      <div>
+        <span class="label">MOOD</span>
+        <strong>Firefly Garden</strong>
+      </div>
+      <div class="music-player" role="group" aria-label="Lantern music player">
+        <button id="music-toggle" class="music-toggle" type="button" aria-label="Play Lantern Lullaby" aria-pressed="false">
+          <span class="play-icon" aria-hidden="true"></span>
+        </button>
+        <div class="music-copy">
+          <span class="label">NOW PLAYING</span>
+          <strong>Lantern Lullaby</strong>
+        </div>
+        <span class="equalizer" aria-hidden="true"><i></i><i></i><i></i></span>
+        <label class="volume-control">
+          <span class="sr-only">Music volume</span>
+          <input id="music-volume" type="range" min="0" max="100" value="42" aria-label="Music volume">
+        </label>
+      </div>
+      <button id="reset" type="button">RESET VIEW <span>↻</span></button>
+    </div>
+
+    <div class="loading" id="loading">GROWING THE GARDEN…</div>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
