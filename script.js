@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/controls/OrbitControls.js";
+import * as BufferGeometryUtils from "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/utils/BufferGeometryUtils.js";
 
 const container = document.getElementById("canvas-wrap");
 const loading = document.getElementById("loading");
@@ -9,6 +10,10 @@ const musicPlayer = document.querySelector(".music-player");
 const volumeControl = document.getElementById("music-volume");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// A coarse pointer (touch) or a small viewport means a phone/tablet-class GPU —
+// dial back the most expensive rendering features there so the scene stays smooth.
+const lowPower = window.matchMedia("(pointer: coarse)").matches || innerWidth < 800;
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0c08);
 scene.fog = new THREE.FogExp2(0x0a0c08, 0.043);
@@ -16,14 +21,18 @@ scene.fog = new THREE.FogExp2(0x0a0c08, 0.043);
 const camera = new THREE.PerspectiveCamera(33, innerWidth / innerHeight, 0.1, 100);
 camera.position.set(7.5, 4.5, 10.5);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({
+  antialias: !lowPower,
+  alpha: true,
+  powerPreference: "high-performance"
+});
+renderer.setPixelRatio(Math.min(devicePixelRatio, lowPower ? 1.5 : 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.04;
+renderer.toneMappingExposure = 1.08;
 container.appendChild(renderer.domElement);
 
 function mat(color, roughness = .5, metalness = 0, transmission = 0, opacity = 1) {
@@ -51,13 +60,16 @@ const darkBronze = new THREE.MeshStandardMaterial({
   metalness: .72
 });
 
+// Glass "transmission" (true refraction) needs an extra render pass that's costly on
+// phone GPUs. On low-power devices we fall back to a slightly denser tinted glass
+// with no transmission — it reads almost identically but is far cheaper to draw.
 const glass = new THREE.MeshPhysicalMaterial({
   color: 0xc7d0c0,
   roughness: .12,
   metalness: .05,
-  transmission: .62,
+  transmission: lowPower ? 0 : .62,
   transparent: true,
-  opacity: .25,
+  opacity: lowPower ? .34 : .25,
   thickness: .16,
   ior: 1.45,
   side: THREE.DoubleSide
@@ -68,9 +80,9 @@ const warmGlass = new THREE.MeshPhysicalMaterial({
   emissive: 0xc77e35,
   emissiveIntensity: 1.4,
   roughness: .25,
-  transmission: .18,
+  transmission: lowPower ? 0 : .18,
   transparent: true,
-  opacity: .78,
+  opacity: lowPower ? .87 : .78,
   side: THREE.DoubleSide
 });
 
@@ -85,27 +97,37 @@ const leafMat = new THREE.MeshStandardMaterial({
   side: THREE.DoubleSide
 });
 
+const centerMat = new THREE.MeshStandardMaterial({ color: 0x5a392d, roughness: .7 });
+
 const tulipMats = [
   new THREE.MeshStandardMaterial({ color: 0xf5cbc5, roughness: .42, emissive: 0x6a3634, emissiveIntensity: .17 }),
   new THREE.MeshStandardMaterial({ color: 0xeeb49f, roughness: .43, emissive: 0x6d3929, emissiveIntensity: .15 }),
   new THREE.MeshStandardMaterial({ color: 0xf5d6ae, roughness: .4, emissive: 0x6b4526, emissiveIntensity: .16 })
 ];
 
-scene.add(new THREE.HemisphereLight(0xc7c0a4, 0x080907, 1.12));
+// --- Lighting: a warm lantern glow inside, a cool dusk fill outside — that
+// warm/cool contrast is most of what reads as "cozy" at night. ---
+scene.add(new THREE.HemisphereLight(0xc9c2a6, 0x0a0a08, 1.16));
 
-const warm = new THREE.PointLight(0xffb968, 11.5, 8, 2);
+const warm = new THREE.PointLight(0xffb968, 12, 8, 2);
 warm.position.set(0, 1.1, 0);
 warm.castShadow = true;
-warm.shadow.mapSize.set(1024, 1024);
+warm.shadow.mapSize.set(lowPower ? 512 : 1024, lowPower ? 512 : 1024);
 scene.add(warm);
 
-const softTop = new THREE.PointLight(0xd8c7a6, 2.5, 12, 2);
+const softTop = new THREE.PointLight(0xdccaa8, 2.5, 12, 2);
 softTop.position.set(-2, 7, 3);
 scene.add(softTop);
 
-const duskFill = new THREE.PointLight(0x788461, 1.8, 13, 2);
+const duskFill = new THREE.PointLight(0x5f6c8c, 1.55, 13, 2);
 duskFill.position.set(-5, 3, -4);
 scene.add(duskFill);
+
+// A quiet warm rim light from behind so the far glass panels and pillars catch a
+// soft edge highlight instead of going flat and dark — adds depth cheaply.
+const rimLight = new THREE.PointLight(0xffcf95, 1.5, 11, 2);
+rimLight.position.set(4.6, 3.4, -5.2);
+scene.add(rimLight);
 
 const lantern = new THREE.Group();
 scene.add(lantern);
@@ -260,7 +282,7 @@ function createTulip(scale = 1, materialIndex = 0) {
 
   const center = new THREE.Mesh(
     new THREE.SphereGeometry(.11 * scale, 10, 8),
-    new THREE.MeshStandardMaterial({ color: 0x5a392d, roughness: .7 })
+    centerMat
   );
   center.position.y = .17 * scale;
   center.scale.set(1, .45, 1);
@@ -302,7 +324,52 @@ for (const [x,z,scale,c] of [[-1.8,-.35,1.12,1],[.02,.6,1.18,0],[1.7,.48,1.05,2]
   lantern.add(t);
 }
 
-const dustCount = 120;
+// --- Collapse the lantern + garden into a handful of merged meshes. ---
+// Each box/petal/leaf/stem above was its own draw call (250+ of them) — brutal
+// for a phone GPU. Since none of them move independently, we bake every mesh's
+// world transform straight into its geometry and merge everything that shares a
+// material (and shadow behaviour) into one static mesh. The pixels on screen end
+// up identical; the number of draw calls drops by well over an order of magnitude.
+function mergeLanternMeshes() {
+  lantern.updateMatrixWorld(true);
+
+  const groups = new Map();
+  lantern.traverse((child) => {
+    if (!child.isMesh) return;
+    const key = `${child.material.uuid}|${child.castShadow}|${child.receiveShadow}`;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        material: child.material,
+        castShadow: child.castShadow,
+        receiveShadow: child.receiveShadow,
+        geometries: []
+      });
+    }
+    const geo = child.geometry.clone();
+    geo.applyMatrix4(child.matrixWorld);
+    groups.get(key).geometries.push(geo);
+  });
+
+  const originals = [];
+  lantern.traverse((child) => { if (child.isMesh) originals.push(child); });
+  for (const mesh of originals) {
+    mesh.geometry.dispose();
+    mesh.parent.remove(mesh);
+  }
+
+  for (const { material, castShadow, receiveShadow, geometries } of groups.values()) {
+    const merged = BufferGeometryUtils.mergeGeometries(geometries, false);
+    for (const geo of geometries) geo.dispose();
+    if (!merged) continue;
+    const mesh = new THREE.Mesh(merged, material);
+    mesh.castShadow = castShadow;
+    mesh.receiveShadow = receiveShadow;
+    scene.add(mesh);
+  }
+}
+mergeLanternMeshes();
+
+const dustCount = lowPower ? 70 : 120;
 const dustPositions = new Float32Array(dustCount * 3);
 for (let i = 0; i < dustCount; i++) {
   dustPositions[i*3] = (Math.random() - .5) * 4.2;
@@ -338,7 +405,7 @@ function fireflyTexture() {
 const fireflies = [];
 const fireflyGroup = new THREE.Group();
 const glowTexture = fireflyTexture();
-const fireflyCount = innerWidth < 700 ? 24 : 38;
+const fireflyCount = innerWidth < 700 ? 20 : (lowPower ? 28 : 38);
 
 for (let i = 0; i < fireflyCount; i++) {
   const phase = Math.random() * Math.PI * 2;
@@ -364,7 +431,7 @@ for (let i = 0; i < fireflyCount; i++) {
 scene.add(fireflyGroup);
 
 const ground = new THREE.Mesh(
-  new THREE.CircleGeometry(30, 96),
+  new THREE.CircleGeometry(30, lowPower ? 48 : 96),
   new THREE.MeshStandardMaterial({ color: 0x11120f, roughness: .92, metalness: .02 })
 );
 ground.rotation.x = -Math.PI / 2;
@@ -372,7 +439,7 @@ ground.position.y = .03;
 ground.receiveShadow = true;
 scene.add(ground);
 
-const warmPool = new THREE.PointLight(0xe6a255, 15.5, 9, 2);
+const warmPool = new THREE.PointLight(0xe6a255, 16, 9, 2);
 warmPool.position.set(0, .5, 0);
 scene.add(warmPool);
 
@@ -504,23 +571,60 @@ function frame() {
 frame();
 controls.saveState();
 
-window.addEventListener("resize", () => {
+// Mobile browsers fire "resize" constantly as the address bar shows/hides while
+// scrolling or the keyboard toggles, which used to re-run the whole camera/frame
+// setup every time and made the scene feel jittery. We now collapse bursts of
+// resize events into a single update per frame, and ignore small height-only
+// wobbles that aren't a real orientation or viewport change.
+let resizeHandle = null;
+let lastWidth = innerWidth;
+let lastHeight = innerHeight;
+
+function applyResize() {
+  const widthChanged = Math.abs(innerWidth - lastWidth) > 2;
+  const heightChanged = Math.abs(innerHeight - lastHeight) > 120;
+  if (!widthChanged && !heightChanged) return;
+  lastWidth = innerWidth;
+  lastHeight = innerHeight;
+
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 700 ? 1.5 : 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 800 ? 1.5 : 2));
   renderer.setSize(innerWidth, innerHeight);
   frame();
   controls.saveState();
+}
+
+window.addEventListener("resize", () => {
+  if (resizeHandle) cancelAnimationFrame(resizeHandle);
+  resizeHandle = requestAnimationFrame(applyResize);
+}, { passive: true });
+
+// Pause the render loop entirely when the tab isn't visible — saves battery and
+// avoids a burst of catch-up work (and a stutter) when the person comes back.
+let renderingActive = true;
+document.addEventListener("visibilitychange", () => {
+  renderingActive = !document.hidden;
 });
+
+// Layered, uneven sine waves read as a living candle flicker rather than a
+// mechanical pulse — cheap on the CPU and does a lot for the cozy feel.
+function flicker(t, seed) {
+  return 1
+    + Math.sin(t * 1.3 + seed) * .035
+    + Math.sin(t * 4.7 + seed * 2.3) * .02
+    + Math.sin(t * 9.1 + seed * 3.7) * .012;
+}
 
 const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
+  if (!renderingActive) return;
+
   const t = clock.getElapsedTime();
 
-  const pulse = 1 + Math.sin(t * 1.1) * .045;
-  warm.intensity = 11.5 * pulse;
-  warmPool.intensity = 15.5 * pulse;
+  warm.intensity = 12 * flicker(t, 0);
+  warmPool.intensity = 16 * flicker(t, 1.7);
 
   if (!reducedMotion) {
     pollen.rotation.y = t * .012;
