@@ -3,12 +3,19 @@
 }
 
 :root {
-  --cream: #f3ebdc;
-  --muted: rgba(243, 235, 220, .62);
-  --line: rgba(243, 235, 220, .13);
-  --bg: #0a0c08;
-  --ember: #e6a255;
-  --ember-soft: rgba(230, 162, 85, .16);
+  --cream: #eee8dc;
+  --muted: rgba(238, 232, 220, .62);
+  --line: rgba(238, 232, 220, .14);
+  --bg: #090a08;
+  --amber: #e8b06a;
+
+  --pad: clamp(20px, 4vw, 56px);
+  --bar: clamp(56px, 9vh, 88px);
+
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
 }
 
 html, body {
@@ -19,156 +26,24 @@ html, body {
   overscroll-behavior: none;
   background: var(--bg);
   color: var(--cream);
+  -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  font-family: "DM Sans", Arial, sans-serif;
+  font-family: "DM Sans", system-ui, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
 }
 
+/* ---------- Stage ---------- */
 .scene {
   position: relative;
   width: 100%;
-  height: 100svh;
-  min-height: 500px;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   isolation: isolate;
-  background:
-    radial-gradient(ellipse at 51% 62%, rgba(228, 158, 75, .16), transparent 25%),
-    radial-gradient(circle at 76% 22%, rgba(113, 123, 77, .1), transparent 28%),
-    radial-gradient(circle at 16% 72%, rgba(71, 91, 56, .13), transparent 31%),
-    linear-gradient(135deg, #090b08 0%, #15170f 52%, #080a07 100%);
-}
-
-.scene::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(ellipse at 50% 71%, rgba(0, 0, 0, 0), rgba(12, 6, 2, .5) 75%),
-    linear-gradient(90deg, rgba(8, 4, 2, .28), transparent 34%, transparent 65%, rgba(8, 4, 2, .22));
-  pointer-events: none;
-}
-
-/* A soft, static ember glow rising from where the lantern sits — reinforces the
-   warm light source without costing an extra GPU pass (no filter/blur used). */
-.scene::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  bottom: -12%;
-  width: min(1100px, 130vw);
-  height: 68%;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse at 50% 100%, var(--ember-soft), transparent 68%);
-  pointer-events: none;
-}
-
-.grain {
-  position: absolute;
-  inset: -50%;
-  z-index: 10;
-  pointer-events: none;
-  opacity: .075;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E");
-  transform: rotate(4deg);
-}
-
-.topbar {
-  position: absolute;
-  z-index: 20;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: calc(82px + env(safe-area-inset-top, 0px));
-  padding: env(safe-area-inset-top, 0px) 4vw 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(10, 12, 8, .58), rgba(10, 12, 8, .12));
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-}
-
-.brand {
-  color: var(--cream);
-  text-decoration: none;
-  letter-spacing: .16em;
-  font-size: 10px;
-  font-weight: 500;
-}
-
-.brand span {
-  color: #d8b98c;
-  margin: 0 7px;
-}
-
-.hint {
-  color: var(--muted);
-  font-size: 9px;
-  letter-spacing: .2em;
-}
-
-.touch-hint { display: none; }
-
-.mouse-icon {
-  font-size: 14px;
-  margin-right: 8px;
-  color: #d9c5a6;
-}
-
-.intro {
-  position: absolute;
-  z-index: 4;
-  top: clamp(112px, 17vh, 185px);
-  left: 7vw;
-  width: min(380px, 35vw);
-  pointer-events: none;
-}
-
-.eyebrow {
-  margin: 0 0 18px;
-  color: #d8b887;
-  font-size: 9px;
-  letter-spacing: .28em;
-}
-
-.eyebrow span {
-  display: inline-block;
-  width: 24px;
-  height: 1px;
-  margin: 0 10px 3px 0;
-  vertical-align: middle;
-  background: #d5a865;
-  box-shadow: 0 0 10px rgba(229, 174, 93, .85);
-}
-
-h1 {
-  margin: 0;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: clamp(48px, 5.6vw, 92px);
-  line-height: .88;
-  font-weight: 400;
-  letter-spacing: -.035em;
-}
-
-h1 em {
-  color: #c8baa0;
-  text-shadow: 0 0 32px rgba(220, 174, 103, .12);
-  font-weight: 400;
-}
-
-.description {
-  max-width: 310px;
-  margin-top: 27px;
-  color: rgba(243,235,220,.55);
-  font-size: 12px;
-  line-height: 1.8;
+  background: linear-gradient(135deg, #080907 0%, #11130f 52%, #070806 100%);
 }
 
 #canvas-wrap {
@@ -177,6 +52,8 @@ h1 em {
   inset: 0;
   cursor: grab;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 #canvas-wrap:active {
@@ -187,14 +64,133 @@ h1 em {
   display: block;
   width: 100%;
   height: 100%;
+  outline: none;
 }
 
+/* Soft warm vignette + top/bottom scrims so text always stays readable */
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 52%, rgba(0, 0, 0, 0) 42%, rgba(6, 5, 3, .62) 100%),
+    linear-gradient(to bottom, rgba(6, 6, 4, .55), rgba(6, 6, 4, 0) 22%),
+    linear-gradient(to top, rgba(6, 6, 4, .6), rgba(6, 6, 4, 0) 24%);
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  opacity: .07;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E");
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--bar) + var(--safe-t));
+  padding: var(--safe-t) max(var(--pad), var(--safe-r)) 0 max(var(--pad), var(--safe-l));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  background: rgba(8, 9, 7, .16);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.brand {
+  color: var(--cream);
+  text-decoration: none;
+  letter-spacing: .16em;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.brand span {
+  color: var(--amber);
+  margin: 0 7px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .2em;
+}
+
+.mouse-icon {
+  font-size: 14px;
+  margin-right: 8px;
+  color: #d9c5a6;
+}
+
+/* ---------- Intro copy ---------- */
+.intro {
+  position: absolute;
+  z-index: 4;
+  top: clamp(112px, 20vh, 200px);
+  left: max(7vw, calc(var(--safe-l) + 24px));
+  width: min(400px, 34vw);
+  pointer-events: none;
+  text-shadow: 0 2px 30px rgba(6, 6, 4, .7);
+}
+
+.intro > * {
+  animation: rise 1.6s cubic-bezier(.2, .7, .2, 1) both;
+}
+.intro > .eyebrow     { animation-delay: .8s; }
+.intro > h1           { animation-delay: 1s; }
+.intro > .description { animation-delay: 1.25s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.eyebrow {
+  margin: 0 0 18px;
+  color: #d0b389;
+  font-size: 11px;
+  letter-spacing: .26em;
+}
+
+h1 {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(48px, 5.6vw, 92px);
+  line-height: .9;
+  font-weight: 400;
+  letter-spacing: -.03em;
+}
+
+h1 em {
+  color: #cdbfa6;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.description {
+  max-width: 34ch;
+  margin: 26px 0 0;
+  color: rgba(238, 232, 220, .66);
+  font-size: 13px;
+  line-height: 1.85;
+}
+
+/* ---------- Bottom bar ---------- */
 .bottom-info {
   position: absolute;
   z-index: 20;
-  left: 4vw;
-  right: 4vw;
-  bottom: max(26px, env(safe-area-inset-bottom));
+  left: max(var(--pad), var(--safe-l));
+  right: max(var(--pad), var(--safe-r));
+  bottom: max(28px, calc(var(--safe-b) + 16px));
   display: flex;
   align-items: flex-end;
   gap: 44px;
@@ -208,268 +204,516 @@ h1 em {
 .label {
   display: block;
   margin-bottom: 8px;
-  color: rgba(238,232,220,.34);
-  font-size: 8px;
+  color: rgba(238, 232, 220, .42);
+  font-size: 9px;
   letter-spacing: .22em;
 }
 
 .bottom-info strong {
-  color: rgba(238,232,220,.74);
-  font-size: 11px;
+  color: rgba(238, 232, 220, .8);
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: .05em;
 }
 
 #reset {
-  margin-left: auto;
+  margin-left: 0;
+  flex: none;
   pointer-events: auto;
-  border: 1px solid rgba(243,235,220,.2);
-  background: rgba(20, 22, 15, .38);
-  color: rgba(238,232,220,.62);
-  padding: 10px 14px;
+  border: 1px solid rgba(238, 232, 220, .24);
+  background: rgba(10, 11, 9, .34);
+  color: rgba(238, 232, 220, .74);
+  padding: 11px 16px;
   border-radius: 100px;
   font: inherit;
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: .16em;
   cursor: pointer;
-  touch-action: manipulation;
-  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  transition: .25s ease, box-shadow .3s ease;
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color .25s ease, color .25s ease, background .25s ease;
 }
 
 #reset:hover {
-  border-color: rgba(238,232,220,.45);
+  border-color: rgba(238, 232, 220, .5);
   color: var(--cream);
-  background: rgba(255,255,255,.05);
-  box-shadow: 0 0 16px var(--ember-soft);
+  background: rgba(255, 255, 255, .06);
 }
 
-#reset span {
+#reset:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+#reset .reset-ico {
   font-size: 13px;
   margin-left: 6px;
 }
 
-.music-player {
+/* ---------- Music player ---------- */
+.player {
+  margin-left: auto;
+  pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 242px;
-  margin-left: auto;
-  padding: 5px 10px 5px 5px;
-  pointer-events: auto;
-  border: 1px solid rgba(243,235,220,.13);
-  border-radius: 999px;
-  background: rgba(20, 22, 15, .32);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  transition: box-shadow .3s ease, border-color .3s ease;
+  gap: 4px;
+  min-width: 0;
+  max-width: min(480px, 100%);
+  padding: 5px 8px 5px 5px;
+  border: 1px solid rgba(238, 232, 220, .22);
+  border-radius: 100px;
+  background: rgba(10, 11, 9, .34);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.music-player.is-playing {
-  border-color: rgba(246, 205, 137, .3);
-  box-shadow: 0 0 20px var(--ember-soft);
-}
-
-#reset { margin-left: 0; }
-
-.music-toggle {
+.player button {
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  flex: none;
   display: grid;
+  place-items: center;
   width: 32px;
   height: 32px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid rgba(243,235,220,.2);
   border-radius: 50%;
-  color: #f8d89e;
-  background: rgba(225, 167, 84, .12);
+  color: rgba(238, 232, 220, .78);
   cursor: pointer;
-  touch-action: manipulation;
-  transition: .25s ease;
+  transition: background .2s ease, color .2s ease, transform .15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.music-toggle:hover,
-.music-player.is-playing .music-toggle {
-  border-color: rgba(250, 207, 137, .58);
-  background: rgba(229, 170, 84, .22);
-  box-shadow: 0 0 18px rgba(231, 171, 85, .15);
+.player button:hover {
+  background: rgba(255, 255, 255, .08);
+  color: var(--cream);
 }
 
-.play-icon {
-  display: block;
-  width: 0;
-  height: 0;
-  margin-left: 2px;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 7px solid currentColor;
+.player button:active {
+  transform: scale(.94);
 }
 
-.music-player.is-playing .play-icon {
-  width: 7px;
-  height: 10px;
-  margin-left: 0;
-  border: 0;
-  border-right: 2px solid currentColor;
-  border-left: 2px solid currentColor;
+.player button:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
 }
 
-.music-copy { min-width: 91px; }
-.music-copy .label { margin-bottom: 3px; font-size: 7px; }
-.music-copy strong { font-size: 9px; white-space: nowrap; }
-
-.equalizer {
-  display: flex;
-  align-items: end;
-  width: 12px;
-  height: 14px;
-  gap: 2px;
+.player svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
 
-.equalizer i {
-  width: 2px;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(246, 205, 137, .42);
-  transform-origin: bottom;
+#mp-play {
+  width: 40px;
+  height: 40px;
+  background: var(--amber);
+  color: #1c1409;
 }
 
-.music-player.is-playing .equalizer i {
-  background: #f3cb81;
-  animation: pulse-bar .85s ease-in-out infinite alternate;
+#mp-play:hover {
+  background: #f3c684;
+  color: #1c1409;
 }
 
-.music-player.is-playing .equalizer i:nth-child(2) { animation-delay: -.35s; }
-.music-player.is-playing .equalizer i:nth-child(3) { animation-delay: -.62s; }
-
-@keyframes pulse-bar { to { transform: scaleY(2.7); } }
-
-.volume-control { display: flex; }
-.volume-control input {
-  width: 52px;
-  height: 3px;
-  margin: 0;
-  accent-color: #d6a75e;
-  cursor: pointer;
+#mp-play svg {
+  width: 18px;
+  height: 18px;
 }
 
-.sr-only {
+#mp-play .i-pause { display: none; }
+.player.playing #mp-play .i-play { display: none; }
+.player.playing #mp-play .i-pause { display: block; }
+
+/* A soft ring that pulses while music plays (transform + opacity only, so it stays cheap) */
+#mp-play::after {
+  content: "";
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.loading {
-  position: absolute;
-  z-index: 30;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  color: rgba(238,232,220,.5);
-  font-size: 8px;
-  letter-spacing: .25em;
-  transition: opacity .7s ease;
-}
-
-.loading.hide {
+  inset: 0;
+  border: 2px solid var(--amber);
+  border-radius: 50%;
   opacity: 0;
   pointer-events: none;
 }
 
-@media (max-width: 1024px) {
-  .intro {
-    left: 5vw;
-    width: min(340px, 37vw);
-  }
-
-  h1 { font-size: clamp(52px, 7vw, 76px); }
+.player.playing #mp-play::after {
+  animation: mp-ring 2.6s ease-out infinite;
 }
 
-@media (max-width: 800px) {
-  .topbar {
-    height: calc(68px + env(safe-area-inset-top, 0px));
-    padding: env(safe-area-inset-top, 0px) max(20px, env(safe-area-inset-left)) 0;
-    /* backdrop-filter blur is one of the costlier effects for mobile Safari's
-       compositor — trim it on small/touch screens rather than dropping it. */
-    -webkit-backdrop-filter: blur(7px);
-    backdrop-filter: blur(7px);
+@keyframes mp-ring {
+  0%   { transform: scale(1);   opacity: .55; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.mp-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 150px;
+  min-width: 0;
+  padding: 0 8px 0 6px;
+}
+
+.mp-title,
+.mp-sub {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mp-title {
+  color: var(--cream);
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+
+.mp-sub {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+#mp-vol {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: none;
+  width: 72px;
+  height: 20px;
+  margin: 0 4px 0 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+#mp-vol::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(238, 232, 220, .28);
+}
+
+#mp-vol::-moz-range-track {
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(238, 232, 220, .28);
+}
+
+#mp-vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--cream);
+}
+
+#mp-vol::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--cream);
+}
+
+#mp-vol:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- Gesture hint (shows once, then fades) ---------- */
+.gesture-hint {
+  position: absolute;
+  z-index: 22;
+  left: 50%;
+  bottom: calc(max(28px, var(--safe-b) + 16px) + 82px);
+  transform: translateX(-50%);
+  max-width: 88vw;
+  padding: 10px 18px;
+  border: 1px solid rgba(238, 232, 220, .18);
+  border-radius: 100px;
+  background: rgba(10, 11, 9, .5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(238, 232, 220, .78);
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .9s ease;
+}
+
+.gesture-hint.show {
+  opacity: 1;
+}
+
+/* ---------- Loader ---------- */
+.loading {
+  position: absolute;
+  z-index: 40;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 24px;
+  background: radial-gradient(circle at 50% 50%, #17130d 0%, #070806 70%);
+  color: rgba(238, 232, 220, .6);
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-align: center;
+  padding: 24px;
+  transition: opacity 1.2s ease, visibility 0s linear 1.2s;
+}
+
+.loading.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.ember {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffcf8a;
+  box-shadow: 0 0 14px 4px rgba(255, 170, 80, .75), 0 0 50px 16px rgba(255, 140, 50, .35);
+  animation: ember 2.2s ease-in-out infinite;
+}
+
+@keyframes ember {
+  0%, 100% { transform: scale(.85); opacity: .75; }
+  50%      { transform: scale(1.15); opacity: 1; }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+/* Touch devices & small windows: hide the mouse hint (the gesture pill takes over) */
+@media (max-width: 899px), (pointer: coarse) {
+  .hint { display: none; }
+  #mp-vol { display: none; } /* on touch devices the phone's own volume buttons do this */
+}
+
+/* Narrow windows: make room for the music player */
+@media (max-width: 899px) {
+  .mood { display: none; }
+}
+
+/* Comfortable touch targets */
+@media (pointer: coarse) {
+  #reset {
+    min-height: 44px;
+    padding: 0 20px;
+    font-size: 10px;
   }
 
-  .hint { font-size: 8px; letter-spacing: .16em; }
-  .desktop-hint { display: none; }
-  .touch-hint { display: inline; }
+  .player .mp-btn {
+    width: 40px;
+    height: 40px;
+  }
 
+  #mp-play {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ----- Portrait (iPad portrait, phones): text on top, lantern below ----- */
+@media (max-aspect-ratio: 11/10) {
   .intro {
-    top: max(94px, 12svh);
-    left: max(22px, env(safe-area-inset-left));
-    width: min(285px, 75vw);
+    top: calc(var(--bar) + var(--safe-t) + clamp(14px, 3.2vh, 40px));
+    left: max(var(--pad), var(--safe-l));
+    width: min(680px, calc(100vw - var(--pad) * 2 - var(--safe-l) - var(--safe-r)));
   }
 
   h1 {
-    font-size: clamp(47px, 13vw, 64px);
+    font-size: clamp(44px, 9vw, 84px);
+    line-height: .92;
+  }
+
+  .eyebrow {
+    margin-bottom: 14px;
   }
 
   .description {
-    margin-top: 18px;
-    max-width: 255px;
-    line-height: 1.7;
+    margin-top: 16px;
+    max-width: 44ch;
+    font-size: clamp(13px, 2.1vw, 16px);
+    line-height: 1.75;
   }
 
   .bottom-info {
-    left: max(22px, env(safe-area-inset-left));
-    right: max(22px, env(safe-area-inset-right));
-    bottom: max(18px, env(safe-area-inset-bottom));
-    gap: 18px;
+    gap: 28px;
   }
-
-  .bottom-info > div:nth-child(2) {
-    display: none;
-  }
-
-  .music-player {
-    min-width: 0;
-    gap: 8px;
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-  }
-  .music-copy { display: none; }
-  #reset { margin-left: 0; }
 }
 
-@media (max-width: 500px) {
-  .intro {
-    top: max(88px, 11svh);
+/* ----- Phones in portrait ----- */
+@media (max-aspect-ratio: 11/10) and (max-width: 599px) {
+  :root {
+    --bar: 56px;
+  }
+
+  .brand { font-size: 11px; }
+
+  h1 {
+    font-size: clamp(34px, 10vw, 46px);
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: .22em;
   }
 
   .description {
-    font-size: 11px;
+    font-size: 13px;
+    max-width: 32ch;
+  }
+
+  .bottom-info {
+    gap: 18px;
+  }
+
+  .bottom-info > div {
+    min-width: 0;
+  }
+
+  .object,
+  .mood {
+    display: none;
+  }
+
+  /* The player takes the whole row; "reset" becomes a round icon button */
+  .player {
+    flex: 1;
+    margin-left: 0;
+    max-width: none;
+  }
+
+  .mp-meta {
+    flex: 1;
+    width: auto;
   }
 
   #reset {
-    min-height: 40px;
-    padding: 9px 13px;
+    width: 44px;
+    height: 44px;
+    min-height: 0;
+    padding: 0;
+    display: grid;
+    place-items: center;
   }
 
-  .volume-control { display: none; }
-  .music-player { padding-right: 6px; }
+  .reset-label {
+    display: none;
+  }
 
-  .bottom-info > div { min-width: 0; }
-  .bottom-info strong { font-size: 10px; }
-  .label { margin-bottom: 5px; }
+  #reset .reset-ico {
+    margin: 0;
+    font-size: 19px;
+  }
+
+  .gesture-hint {
+    font-size: 11.5px;
+    padding: 9px 16px;
+  }
 }
 
-@media (max-height: 620px) and (max-width: 800px) {
+/* Short portrait phones (iPhone SE etc.): save vertical space for the lantern */
+@media (max-aspect-ratio: 11/10) and (max-height: 700px) {
   .description { display: none; }
-  .intro { top: 84px; }
-  .bottom-info { bottom: 13px; }
 }
 
+/* ----- Landscape phones: compact, lantern on the right ----- */
+@media (min-aspect-ratio: 11/10) and (max-height: 520px) {
+  :root {
+    --bar: 48px;
+  }
+
+  .intro {
+    top: calc(var(--bar) + var(--safe-t) + 6px);
+    width: min(340px, 40vw);
+  }
+
+  h1 {
+    font-size: clamp(28px, 10vh, 44px);
+    line-height: .95;
+  }
+
+  .eyebrow {
+    margin-bottom: 8px;
+    font-size: 9px;
+  }
+
+  .description { display: none; }
+
+  .bottom-info {
+    bottom: max(14px, calc(var(--safe-b) + 6px));
+  }
+
+  .bottom-info > div {
+    min-width: 0;
+  }
+
+  .mood { display: none; }
+
+  .gesture-hint {
+    bottom: calc(max(14px, var(--safe-b) + 6px) + 56px);
+  }
+}
+
+/* ----- Tablet landscape / small laptops ----- */
+@media (min-aspect-ratio: 11/10) and (min-height: 521px) and (max-width: 1180px) {
+  .intro {
+    top: clamp(104px, 17vh, 160px);
+    left: max(5vw, calc(var(--safe-l) + 24px));
+    width: min(340px, 36vw);
+  }
+
+  h1 {
+    font-size: clamp(44px, 5.8vw, 68px);
+  }
+}
+
+/* ----- Big screens ----- */
+@media (min-width: 1600px) {
+  .description { font-size: 14px; }
+  .eyebrow { font-size: 12px; }
+  .intro { width: min(460px, 32vw); }
+}
+
+/* ----- Smoothness on phones & tablets -----
+   backdrop-filter re-blurs everything behind it on every frame, and the WebGL canvas
+   changes every frame, so on touch devices we swap it for plain translucent fills.
+   The film-grain overlay is dropped too (it is one more full-screen layer to composite). */
+@media (pointer: coarse), (max-width: 899px) {
+  .topbar,
+  #reset,
+  .player,
+  .gesture-hint {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .topbar { background: rgba(8, 9, 7, .5); }
+  #reset { background: rgba(10, 11, 9, .6); }
+  .player { background: rgba(10, 11, 9, .62); }
+  .gesture-hint { background: rgba(10, 11, 9, .72); }
+
+  .grain { display: none; }
+
+  .intro { text-shadow: 0 1px 12px rgba(6, 6, 4, .8); }
+}
+
+/* ----- Respect reduced motion ----- */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; }
+  .intro > *,
+  .ember,
+  .player.playing #mp-play::after {
+    animation: none;
+  }
+
+  .loading,
+  .gesture-hint {
+    transition: none;
+  }
 }
