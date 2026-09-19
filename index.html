@@ -3,17 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>project</title>
-  <meta name="description" content="A calm interactive lantern garden, full of hand-shaped tulips and slow fireflies.">
-  <meta name="theme-color" content="#0a0c08">
+  <meta name="theme-color" content="#080907">
+  <meta name="color-scheme" content="dark">
+  <title>Bloom Lantern — Cozy 3D</title>
+  <meta name="description" content="A cozy interactive 3D lantern filled with glowing tulips and drifting fireflies. Drag to look around.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B7%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script type="importmap">
   {
     "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
     }
   }
   </script>
@@ -24,49 +27,80 @@
 
     <header class="topbar">
       <a class="brand" href="#">BLOOM<span>•</span>LANTERN</a>
-      <div class="hint"><span class="mouse-icon">↔</span><span class="desktop-hint">DRAG TO EXPLORE</span><span class="touch-hint">SWIPE TO EXPLORE</span></div>
+      <div class="hint" id="hint"><span class="mouse-icon">↔</span> DRAG TO EXPLORE · SCROLL TO ZOOM</div>
     </header>
 
     <section class="intro">
-      <p class="eyebrow"><span></span>A LITTLE LIGHT IN THE DARK</p>
+      <p class="eyebrow">A LITTLE LIGHT IN THE DARK</p>
       <h1>Flowers that<br><em>keep the night warm.</em></h1>
       <p class="description">
-        A tiny glass garden where tulips glow softly and fireflies drift
-        through the evening air.
+        An interactive glass lantern filled with tiny tulips, soft leaves,
+        and a warm hidden glow. Stay a while and the fireflies come closer.
       </p>
     </section>
 
-    <div id="canvas-wrap" aria-label="Interactive 3D tulip lantern"></div>
+    <div id="canvas-wrap" role="img" aria-label="Interactive 3D tulip lantern with drifting fireflies"></div>
+
+    <div class="vignette" aria-hidden="true"></div>
+
+    <div class="gesture-hint" id="gesture-hint" aria-hidden="true">Drag to look around · tap for a spark</div>
 
     <div class="bottom-info">
-      <div>
+      <div class="object">
         <span class="label">OBJECT</span>
         <strong>Tulip Lantern</strong>
       </div>
-      <div>
+      <div class="mood">
         <span class="label">MOOD</span>
-        <strong>Firefly Garden</strong>
+        <strong>Midnight Garden</strong>
       </div>
-      <div class="music-player" role="group" aria-label="Lantern music player">
-        <button id="music-toggle" class="music-toggle" type="button" aria-label="Play Lantern Lullaby" aria-pressed="false">
-          <span class="play-icon" aria-hidden="true"></span>
+
+      <div class="player" id="player" role="group" aria-label="Music player">
+        <button type="button" class="mp-btn" id="mp-prev" aria-label="Previous track">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="18,5.5 8.5,12 18,18.5"/><rect x="5" y="5.5" width="2.4" height="13" rx="1"/></svg>
         </button>
-        <div class="music-copy">
-          <span class="label">NOW PLAYING</span>
-          <strong>Lantern Lullaby</strong>
+        <button type="button" id="mp-play" aria-label="Play music" aria-pressed="false">
+          <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.6v12.8a1 1 0 0 0 1.5.86l10.3-6.4a1 1 0 0 0 0-1.72L9.5 4.74A1 1 0 0 0 8 5.6z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.2" height="14" rx="1.2"/><rect x="13.8" y="5" width="4.2" height="14" rx="1.2"/></svg>
+        </button>
+        <button type="button" class="mp-btn" id="mp-next" aria-label="Next track">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="6,5.5 15.5,12 6,18.5"/><rect x="16.6" y="5.5" width="2.4" height="13" rx="1"/></svg>
+        </button>
+        <div class="mp-meta" aria-live="polite">
+          <span class="mp-title" id="mp-title">Midnight Garden</span>
+          <span class="mp-sub" id="mp-sub">Ambient</span>
         </div>
-        <span class="equalizer" aria-hidden="true"><i></i><i></i><i></i></span>
-        <label class="volume-control">
-          <span class="sr-only">Music volume</span>
-          <input id="music-volume" type="range" min="0" max="100" value="42" aria-label="Music volume">
-        </label>
+        <input type="range" id="mp-vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+        <button type="button" class="mp-btn" id="mp-add" aria-label="Add your own music" title="Add your own music">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <input type="file" id="mp-file" accept="audio/*" multiple hidden>
       </div>
-      <button id="reset" type="button">RESET VIEW <span>↻</span></button>
+
+      <button id="reset" type="button" aria-label="Reset the camera view"><span class="reset-label">RESET VIEW</span> <span class="reset-ico" aria-hidden="true">↻</span></button>
     </div>
 
-    <div class="loading" id="loading">GROWING THE GARDEN…</div>
+    <div class="loading" id="loading" role="status">
+      <div class="ember" aria-hidden="true"></div>
+      <span class="loading-text">GROWING THE GARDEN…</span>
+    </div>
   </main>
 
+  <noscript>
+    <style>.loading{display:none}</style>
+  </noscript>
+
   <script type="module" src="script.js"></script>
+  <script>
+    // Safety net: if the 3D script can't load (offline, blocked CDN), don't leave the loader up forever.
+    setTimeout(function () {
+      var l = document.getElementById("loading");
+      if (l && !window.__lanternReady) {
+        var t = l.querySelector(".loading-text");
+        if (t) t.textContent = "THE 3D SCENE COULDN’T LOAD — CHECK YOUR CONNECTION";
+        setTimeout(function () { l.classList.add("hide"); }, 3500);
+      }
+    }, 12000);
+  </script>
 </body>
 </html>
